@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - MiWebPro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body class="light-mode"> <header class="navbar">
+        <div class="logo">🚀 MiWebPro</div>
+        <div class="nav-right">
+            <button id="themeToggle" class="btn-theme" onclick="toggleTheme()">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+            <a href="index.html" class="btn-logout">Cerrar Sesión</a>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <aside class="sidebar">
+            <ul>
+                <li class="active"><i class="fa-solid fa-house"></i> Inicio</li>
+                <li onclick="abrirFinanzas()"><i class="fa-solid fa-wallet"></i> Finanzas</li>
+                <li onclick="abrirTareas()"><i class="fa-solid fa-list-check"></i> Tareas</li>
+                <li onclick="abrirHabitos()"><i class="fa-solid fa-fire"></i> Hábitos</li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <header class="content-header">
+                <h1>Hola, <span id="nombre-dinamico">Invitado</span> 👋</h1>
+                <p>Tu asistente inteligente para el día a día.</p>
+            </header>
+
+            <section class="grid-options">
+                <div class="card">
+                    <div class="card-icon"><i class="fa-solid fa-chart-line"></i></div>
+                    <h3>Finanzas</h3>
+                    <p>Calcula gastos y ahorros.</p>
+                    <button onclick="abrirFinanzas()">Gestionar Dinero</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon"><i class="fa-solid fa-list-check"></i></div>
+                    <h3>Tareas</h3>
+                    <p>Anota tus pendientes.</p>
+                    <button onclick="abrirTareas()">Abrir Lista</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon"><i class="fa-solid fa-brain"></i></div>
+                    <h3>Reflexión  </h3>
+                    <textarea id="pensamientoInput" placeholder="¿Qué estás pensando?" oninput="guardarPensamiento()"></textarea>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon"><i class="fa-solid fa-fire"></i></div>
+                    <h3>Hábitos</h3>
+                    <p>Registra tu progreso.</p>
+                    <button onclick="abrirHabitos()">Ver Hábitos</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon"><i class="fa-solid fa-star"></i></div>
+                    <h3>Sitios Rápidos</h3>
+                    <div id="listaLinks" class="links-rapidos">
+                        </div>
+                    <button class="btn-secundario" onclick="abrirLinks()"><i class="fa-solid fa-plus"></i> Añadir Sitio</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="modalFinanzas" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModales()">&times;</span>
+            <h2>💰 Mis Finanzas</h2>
+            <div class="finanzas-body">
+                <label>Ingreso Mensual:</label>
+                <input type="number" id="ingresoTotal" placeholder="Ej: 2000" onchange="actualizarFinanzas()">
+                <hr>
+                <div class="gasto-input">
+                    <input type="text" id="nombreGasto" placeholder="Gasto (Ej: Luz)">
+                    <input type="number" id="montoGasto" placeholder="$">
+                    <button onclick="agregarGasto()">Añadir</button>
+                </div>
+                <ul id="listaGastosUI"></ul>
+                <div id="resFinanzas" class="resultado">
+                    <p>Gastos: $<span id="tGastos">0</span></p>
+                    <p>Ahorro (20%): $<span id="tAhorro">0</span></p>
+                    <p><strong>Libre: $<span id="tLibre">0</span></strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modalTareas" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModales()">&times;</span>
+            <h2>✅ Mis Tareas</h2>
+            <div class="input-area">
+                <input type="text" id="nuevaTarea" placeholder="Escribe algo...">
+                <button onclick="agregarTarea()">Añadir</button>
+            </div>
+            <ul id="listaTareasUI"></ul>
+        </div>
+    </div>
+    <div id="modalLinks" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModales()">&times;</span>
+            <h2>🔗 Nuevo Marcador</h2>
+            <input type="text" id="linkNombre" placeholder="Nombre (Ej: Facebook)">
+            <input type="text" id="linkURL" placeholder="URL (https://...)">
+            <button onclick="agregarLink()">Guardar Link</button>
+        </div>
+    </div>
+    <div id="modalHabitos" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModales()">&times;</span>
+            <h2>💪 Mis Hábitos</h2>
+            <div class="habito-item"><input type="checkbox" id="h1" onchange="gHab()"> Beber Agua 💧</div>
+            <div class="habito-item"><input type="checkbox" id="h2" onchange="gHab()"> Ejercicio 🏃</div>
+            <div class="habito-item"><input type="checkbox" id="h3" onchange="gHab()"> Leer 📚</div>
+        </div>
+    </div>
+
+    <script>
+        // MODO NOCTURNO
+        function toggleTheme() {
+            const body = document.body;
+            const toggleBtn = document.getElementById('themeToggle');
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+                toggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+            } else {
+                localStorage.setItem('theme', 'light');
+                toggleBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
+            }
+        }
+
+        // Cargar tema guardado
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('themeToggle').innerHTML = '<i class="fa-solid fa-sun"></i>';
+        }
+
+        // --- Resto de funciones JS (Sin cambios) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('nombre-dinamico').innerText = localStorage.getItem('usuarioNombre') || "Usuario";
+            document.getElementById('pensamientoInput').value = localStorage.getItem('pensamiento') || "";
+            cargarTareas(); cargarHabitos(); cargarLinks(); cargarFinanzas();
+        });
+        function cerrarModales() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); }
+        let misGastos = JSON.parse(localStorage.getItem('misGastos')) || [];
+        function abrirFinanzas() { document.getElementById('modalFinanzas').style.display='flex'; actualizarFinanzas(); }
+        function agregarGasto() {
+            const n = document.getElementById('nombreGasto').value;
+            const m = parseFloat(document.getElementById('montoGasto').value);
+            if(!n || isNaN(m)) return;
+            misGastos.push({n, m});
+            localStorage.setItem('misGastos', JSON.stringify(misGastos));
+            actualizarFinanzas();
+            document.getElementById('nombreGasto').value = ""; document.getElementById('montoGasto').value = "";
+        }
+        function actualizarFinanzas() {
+            const ing = parseFloat(document.getElementById('ingresoTotal').value) || 0;
+            localStorage.setItem('ingresoTotal', ing);
+            const ui = document.getElementById('listaGastosUI');
+            ui.innerHTML = "";
+            let totalG = 0;
+            misGastos.forEach((g, i) => {
+                totalG += g.monto || g.m;
+                ui.innerHTML += `<li>${g.n}: $${g.m} <i class="fa-solid fa-trash" onclick="borrarGasto(${i})"></i></li>`;
+            });
+            const ahorro = ing * 0.20;
+            const libre = ing - totalG - ahorro;
+            document.getElementById('tGastos').innerText = totalG.toFixed(2);
+            document.getElementById('tAhorro').innerText = ahorro.toFixed(2);
+            document.getElementById('tLibre').innerText = (libre > 0 ? libre : 0).toFixed(2);
+        }
+        function borrarGasto(i) { misGastos.splice(i, 1); localStorage.setItem('misGastos', JSON.stringify(misGastos)); actualizarFinanzas(); }
+        function cargarFinanzas() { document.getElementById('ingresoTotal').value = localStorage.getItem('ingresoTotal') || ""; }
+        function abrirTareas() { document.getElementById('modalTareas').style.display='flex'; }
+        function agregarTarea() {
+            const val = document.getElementById('nuevaTarea').value;
+            if(!val) return;
+            let t = JSON.parse(localStorage.getItem('misTareas')) || [];
+            t.push(val);
+            localStorage.setItem('misTareas', JSON.stringify(t));
+            document.getElementById('nuevaTarea').value = "";
+            cargarTareas();
+        }
+        function cargarTareas() {
+            const ui = document.getElementById('listaTareasUI'); ui.innerHTML = "";
+            const t = JSON.parse(localStorage.getItem('misTareas')) || [];
+            t.forEach((tarea, i) => {
+                ui.innerHTML += `<li>${tarea} <i class="fa-solid fa-xmark" onclick="borrarTarea(${i})"></i></li>`;
+            });
+        }
+        function borrarTarea(i) {
+            let t = JSON.parse(localStorage.getItem('misTareas'));
+            t.splice(i,1); localStorage.setItem('misTareas', JSON.stringify(t)); cargarTareas();
+        }
+        function abrirLinks() { document.getElementById('modalLinks').style.display='flex'; }
+        function agregarLink() {
+            const n = document.getElementById('linkNombre').value;
+            const u = document.getElementById('linkURL').value;
+            if(!n || !u) return;
+            let l = JSON.parse(localStorage.getItem('misLinks')) || [];
+            l.push({n, u});
+            localStorage.setItem('misLinks', JSON.stringify(l));
+            cerrarModales(); cargarLinks();
+        }
+        function cargarLinks() {
+            const ui = document.getElementById('listaLinks'); ui.innerHTML = "";
+            const l = JSON.parse(localStorage.getItem('misLinks')) || [
+                {n: "Gemini", u: "https://gemini.google.com/"},
+                {n: "WhatsApp", u: "https://web.whatsapp.com/"}
+            ];
+            l.forEach(link => {
+                ui.innerHTML += `<a href="${link.u}" target="_blank" class="link-item"><i class="fa-solid fa-link"></i> ${link.n}</a>`;
+            });
+        }
+        function abrirHabitos() { document.getElementById('modalHabitos').style.display='flex'; }
+        function gHab() {
+            localStorage.setItem('h1', document.getElementById('h1').checked);
+            localStorage.setItem('h2', document.getElementById('h2').checked);
+            localStorage.setItem('h3', document.getElementById('h3').checked);
+        }
+        function cargarHabitos() {
+            document.getElementById('h1').checked = localStorage.getItem('h1') === 'true';
+            document.getElementById('h2').checked = localStorage.getItem('h2') === 'true';
+            document.getElementById('h3').checked = localStorage.getItem('h3') === 'true';
+        }
+        function guardarPensamiento() { localStorage.setItem('pensamiento', document.getElementById('pensamientoInput').value); }
+    </script>
+</body>
+</html>
